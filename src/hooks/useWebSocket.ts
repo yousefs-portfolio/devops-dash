@@ -29,7 +29,7 @@ export interface UseWebSocketReturn {
 
 export const useWebSocket = (options: WebSocketOptions = {}): UseWebSocketReturn => {
   const {
-    url = 'http://localhost:3001',
+      url = 'http://localhost:3002',
     autoConnect = true,
     reconnection = true,
     reconnectionAttempts = 5,

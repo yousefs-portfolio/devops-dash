@@ -7,9 +7,31 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
+**/node_modules
+.pnp
+.pnp.js
+
+# Build outputs
 dist
 dist-ssr
+build
+*.local
+.tsbuildinfo
+*.tsbuildinfo
+
+# Testing
+coverage
+*.lcov
+.nyc_output
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 *.local
 
 # Editor directories and files
@@ -22,6 +44,123 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+*.swp
+*.swo
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Temporary files
+*.tmp
+*.temp
+.tmp
+.temp
+tmp/
+temp/
+
+# Cache
+.cache
+.parcel-cache
+.eslintcache
+.stylelintcache
+*.cache
+
+# Package manager files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Storybook
+storybook-static
+.storybook-out
+
+# Documentation (private)
 /docs/private/
 /.claude/
 /CLAUDE.md
+
+# Server specific
+/server/node_modules
+/server/dist
+/server/.env
+/server/*.log
+/server/coverage
+/server/.nyc_output
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Monitoring files
+*.pid
+*.seed
+*.pid.lock
+
+# Session data
+session-store/
+
+# Redis dump
+dump.rdb
+
+# Production builds
+/build
+/public/build
+
+# Service worker
+sw.js
+workbox-*.js
+
+# PWA
+/public/manifest.json.map
+
+# Scripts output
+/scripts/*.js
+/scripts/*.js.map
+
+# Test artifacts
+/test-results/
+/playwright-report/
+/playwright/.cache/
+/e2e/screenshots/
+/e2e/videos/
+
+# Performance reports
+/performance-reports/
+/lighthouse-reports/
+
+# Deployment
+.vercel
+.netlify
+.firebase
+.firebaserc
+firebase.json
+
+# CI/CD artifacts
+.github/workflows/*.log
+/artifacts/
+
+# TypeScript cache
+*.tscache
+tsconfig.tsbuildinfo
+
+# Husky
+.husky/_
+
+# Generated files
+/src/generated/
+/server/src/generated/
+
+# Bundle analysis
+/bundle-stats.json
+/bundle-analyzer-report.html
+
+# Test files
+test-api.js
+test-*.js
+*.test.js
