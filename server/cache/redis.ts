@@ -1,5 +1,4 @@
 import Redis from 'ioredis';
-import {promisify} from 'util';
 
 // Redis client configuration
 const redisConfig = {
@@ -180,7 +179,7 @@ export class PubSubService {
     /**
      * Publish message to a channel
      */
-    static async publish(channel: string, message: any): Promise<number> {
+    static async publish(channel: string, message: unknown): Promise<number> {
         try {
             const serialized = JSON.stringify(message);
             return await publisher.publish(channel, serialized);
@@ -193,7 +192,7 @@ export class PubSubService {
     /**
      * Subscribe to a channel
      */
-    static subscribe(channel: string, callback: (message: any) => void): void {
+    static subscribe(channel: string, callback: (message: unknown) => void): void {
         subscriber.subscribe(channel);
         subscriber.on('message', (ch, message) => {
             if (ch === channel) {
@@ -223,7 +222,7 @@ export class SessionService {
     /**
      * Create a session
      */
-    static async create(sessionId: string, data: any): Promise<boolean> {
+    static async create(sessionId: string, data: Record<string, unknown>): Promise<boolean> {
         const key = `${this.SESSION_PREFIX}${sessionId}`;
         return await CacheService.set(key, data, this.SESSION_TTL);
     }
@@ -231,7 +230,7 @@ export class SessionService {
     /**
      * Get session data
      */
-    static async get(sessionId: string): Promise<any> {
+    static async get(sessionId: string): Promise<Record<string, unknown> | null> {
         const key = `${this.SESSION_PREFIX}${sessionId}`;
         return await CacheService.get(key);
     }
@@ -239,7 +238,7 @@ export class SessionService {
     /**
      * Update session data
      */
-    static async update(sessionId: string, data: any): Promise<boolean> {
+    static async update(sessionId: string, data: Record<string, unknown>): Promise<boolean> {
         const key = `${this.SESSION_PREFIX}${sessionId}`;
         const current = await this.get(sessionId);
         if (current) {

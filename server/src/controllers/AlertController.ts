@@ -1,6 +1,16 @@
-import {Request, Response, NextFunction} from 'express';
+import {NextFunction, Request, Response} from 'express';
 import {AlertRepository} from '../repositories/AlertRepository';
 import {Server} from 'socket.io';
+import {AlertSeverity, AlertStatus} from '../entities/Alert';
+
+export interface AuthRequest extends Request {
+    user?: {
+        userId: string;
+        email: string;
+        username: string;
+        role: 'admin' | 'developer' | 'viewer';
+    };
+}
 
 export class AlertController {
     private alertRepo: AlertRepository;
@@ -13,8 +23,8 @@ export class AlertController {
         try {
             const filters = {
                 projectId: req.query.projectId as string,
-                status: req.query.status as any,
-                severity: req.query.severity as any,
+                status: req.query.status as AlertStatus | undefined,
+                severity: req.query.severity as AlertSeverity | undefined,
                 startDate: req.query.startDate ? new Date(req.query.startDate as string) : undefined,
                 endDate: req.query.endDate ? new Date(req.query.endDate as string) : undefined,
             };
@@ -96,12 +106,21 @@ export class AlertController {
         }
     }
 
-    async acknowledge(req: Request, res: Response, next: NextFunction): Promise<void> {
+    async acknowledge(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
         try {
-            // TODO: Get user ID from auth middleware
-            const userId = 'temp-user-id'; // This should come from auth
+            // Get user ID from auth middleware
+            if (!req.user) {
+                res.status(401).json({
+                    error: {
+                        code: 'UNAUTHORIZED',
+                        message: 'Authentication required',
+                        status: 401,
+                    },
+                });
+                return;
+            }
 
-            const alert = await this.alertRepo.acknowledge(req.params.id, userId);
+            const alert = await this.alertRepo.acknowledge(req.params.id, req.user.userId);
 
             if (!alert) {
                 res.status(404).json({

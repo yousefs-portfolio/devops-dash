@@ -10,7 +10,7 @@ export interface CreateAlertDTO {
     threshold: number;
     durationSeconds?: number;
     notificationChannels?: string[];
-    metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
 }
 
 export interface UpdateAlertDTO extends Partial<CreateAlertDTO> {

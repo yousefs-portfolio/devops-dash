@@ -3,6 +3,7 @@ import {body} from 'express-validator';
 import {AuthController} from '../controllers/AuthController';
 import {requestValidator} from '../middleware/requestValidator';
 import {authRateLimiter} from '../middleware/rateLimiter';
+import {authenticateToken} from '../../middleware/auth';
 
 const router = Router();
 const controller = new AuthController();
@@ -26,8 +27,8 @@ router.post(
     '/login',
     authRateLimiter,
     [
-        body('email').isEmail().normalizeEmail(),
-        body('password').isString(),
+        body('emailOrUsername').isString().notEmpty(),
+        body('password').isString().notEmpty(),
     ],
     requestValidator,
     controller.login.bind(controller)
@@ -37,9 +38,51 @@ router.post(
 router.post('/logout', controller.logout.bind(controller));
 
 // POST /api/auth/refresh - Refresh token
-router.post('/refresh', controller.refresh.bind(controller));
+router.post(
+    '/refresh',
+    [
+        body('refreshToken').isString().notEmpty(),
+    ],
+    requestValidator,
+    controller.refresh.bind(controller)
+);
 
-// GET /api/auth/me - Get current user
-router.get('/me', controller.getCurrentUser.bind(controller));
+// GET /api/auth/me - Get current user (requires authentication)
+router.get('/me', authenticateToken, controller.getCurrentUser.bind(controller));
+
+// POST /api/auth/change-password - Change password (requires authentication)
+router.post(
+    '/change-password',
+    authenticateToken,
+    [
+        body('oldPassword').isString().notEmpty(),
+        body('newPassword').isString().isLength({min: 8}),
+    ],
+    requestValidator,
+    controller.changePassword.bind(controller)
+);
+
+// POST /api/auth/reset-password - Request password reset
+router.post(
+    '/reset-password',
+    authRateLimiter,
+    [
+        body('email').isEmail().normalizeEmail(),
+    ],
+    requestValidator,
+    controller.resetPassword.bind(controller)
+);
+
+// POST /api/auth/reset-password/confirm - Confirm password reset
+router.post(
+    '/reset-password/confirm',
+    authRateLimiter,
+    [
+        body('token').isString().notEmpty(),
+        body('newPassword').isString().isLength({min: 8}),
+    ],
+    requestValidator,
+    controller.confirmPasswordReset.bind(controller)
+);
 
 export default router;

@@ -54,7 +54,7 @@ export class MetricsCollectorService {
 
             // Collect GitHub metrics if configured
             if (project.github_repo) {
-                const match = project.github_repo.match(/github\.com\/([^\/]+)\/([^\/]+)/);
+                const match = project.github_repo.match(/github\.com\/([^/]+)\/([^/]+)/);
                 if (match) {
                     const [, owner, repo] = match;
                     collectionPromises.push(

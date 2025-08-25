@@ -2,6 +2,7 @@ import {Router} from 'express';
 import {body, param, query} from 'express-validator';
 import {AlertController} from '../controllers/AlertController';
 import {requestValidator} from '../middleware/requestValidator';
+import {authenticateToken} from '../../middleware/auth';
 
 const router = Router();
 const controller = new AlertController();
@@ -61,9 +62,10 @@ router.put(
     controller.update.bind(controller)
 );
 
-// POST /api/alerts/:id/acknowledge - Acknowledge alert
+// POST /api/alerts/:id/acknowledge - Acknowledge alert (requires authentication)
 router.post(
     '/:id/acknowledge',
+    authenticateToken,
     [param('id').isUUID()],
     requestValidator,
     controller.acknowledge.bind(controller)

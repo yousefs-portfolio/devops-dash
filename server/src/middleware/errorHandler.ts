@@ -1,4 +1,4 @@
-import {Request, Response, NextFunction} from 'express';
+import {NextFunction, Request, Response} from 'express';
 
 export interface ApiError extends Error {
     status?: number;
@@ -9,6 +9,7 @@ export const errorHandler = (
     err: ApiError,
     req: Request,
     res: Response,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     next: NextFunction
 ): void => {
     const status = err.status || 500;

@@ -4,7 +4,7 @@ import helmet from 'helmet';
 import compression from 'compression';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
-import {createServer} from 'http';
+import {createServer, Server as HttpServer} from 'http';
 import {Server} from 'socket.io';
 import {errorHandler} from './middleware/errorHandler';
 import {notFoundHandler} from './middleware/notFoundHandler';
@@ -21,7 +21,7 @@ dotenv.config();
 
 export class App {
     public app: Application;
-    public server: any;
+    public server: HttpServer;
     public io: Server;
     private port: number;
 

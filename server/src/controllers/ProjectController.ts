@@ -1,8 +1,10 @@
-import {Request, Response, NextFunction} from 'express';
+import {NextFunction, Request, Response} from 'express';
 import {ProjectRepository} from '../repositories/ProjectRepository';
 import {MetricRepository} from '../repositories/MetricRepository';
 import {AlertRepository} from '../repositories/AlertRepository';
 import {Server} from 'socket.io';
+import {MetricType} from '../entities/Metric';
+import {AlertStatus} from '../entities/Alert';
 
 export class ProjectController {
     private projectRepo: ProjectRepository;
@@ -18,7 +20,7 @@ export class ProjectController {
     async getAll(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const filters = {
-                status: req.query.status as any,
+                status: req.query.status as 'active' | 'inactive' | 'archived' | undefined,
                 search: req.query.search as string,
             };
 
@@ -129,7 +131,7 @@ export class ProjectController {
         try {
             const filters = {
                 projectId: req.params.id,
-                type: req.query.type as any,
+                type: req.query.type as MetricType | undefined,
                 startDate: req.query.startDate ? new Date(req.query.startDate as string) : undefined,
                 endDate: req.query.endDate ? new Date(req.query.endDate as string) : undefined,
             };
@@ -151,7 +153,7 @@ export class ProjectController {
         try {
             const filters = {
                 projectId: req.params.id,
-                status: req.query.status as any,
+                status: req.query.status as AlertStatus | undefined,
             };
 
             const alerts = await this.alertRepo.findAll(filters);

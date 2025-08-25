@@ -1,11 +1,6 @@
 import {db} from '../database/connection';
-import {Alert, AlertEntity, AlertSeverity, AlertStatus} from '../entities/Alert';
-import {
-    IAlertRepository,
-    CreateAlertDTO,
-    UpdateAlertDTO,
-    AlertFilters,
-} from './interfaces/IAlertRepository';
+import {Alert, AlertEntity, AlertStatus} from '../entities/Alert';
+import {AlertFilters, CreateAlertDTO, IAlertRepository, UpdateAlertDTO,} from './interfaces/IAlertRepository';
 
 export class AlertRepository implements IAlertRepository {
     private table = 'alerts';
@@ -70,7 +65,7 @@ export class AlertRepository implements IAlertRepository {
     }
 
     async update(data: UpdateAlertDTO): Promise<Alert | null> {
-        const updateData: any = {};
+        const updateData: Record<string, unknown> = {};
 
         if (data.name !== undefined) updateData.name = data.name;
         if (data.description !== undefined) updateData.description = data.description;
@@ -172,7 +167,7 @@ export class AlertRepository implements IAlertRepository {
         return counts;
     }
 
-    private mapToEntity(row: any): Alert {
+    private mapToEntity(row: Record<string, unknown>): Alert {
         const notificationChannels = typeof row.notification_channels === 'string'
             ? JSON.parse(row.notification_channels)
             : row.notification_channels;

@@ -27,7 +27,7 @@ export interface Alert {
   acknowledged_by?: string;
   silence_until?: Date;
   tags?: string[];
-  metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
   affected_services?: string[];
   runbook_url?: string;
   notification_sent: boolean;
@@ -89,7 +89,7 @@ export class AlertEntity implements Alert {
   acknowledged_by?: string;
   silence_until?: Date;
   tags?: string[];
-  metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
   affected_services?: string[];
   runbook_url?: string;
   notification_sent: boolean;

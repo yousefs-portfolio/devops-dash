@@ -24,7 +24,7 @@ export interface Metric {
   unit?: string;
   timestamp: Date;
   tags?: Record<string, string>;
-  metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
   source?: string;
   environment?: string;
   aggregation_period?: number; // in seconds
@@ -67,7 +67,7 @@ export class MetricEntity implements Metric {
   unit?: string;
   timestamp: Date;
   tags?: Record<string, string>;
-  metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
   source?: string;
   environment?: string;
   aggregation_period?: number;

@@ -1,4 +1,4 @@
-import {useEffect, useCallback, useRef, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 
 interface AccessibilityOptions {
     announceUpdates?: boolean;
@@ -41,6 +41,7 @@ export const SkipLinks = () => {
     < /div>
 )
     ;
+};
 };
 
 // Live region for announcements
@@ -347,7 +348,7 @@ export const ariaRole = (role: string) => ({role});
 export const useVoiceControl = (commands: Record<string, () => void>) => {
     const [isListening, setIsListening] = useState(false);
     const [transcript, setTranscript] = useState('');
-    const recognitionRef = useRef<any>(null);
+    const recognitionRef = useRef<SpeechRecognition | null>(null);
 
     useEffect(() => {
         if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
@@ -355,14 +356,21 @@ export const useVoiceControl = (commands: Record<string, () => void>) => {
             return;
         }
 
-        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-        const recognition = new SpeechRecognition();
+        const WindowWithSpeech = window as Window & {
+            SpeechRecognition?: typeof SpeechRecognition;
+            webkitSpeechRecognition?: typeof SpeechRecognition;
+        };
+
+        const SpeechRecognitionClass = WindowWithSpeech.SpeechRecognition || WindowWithSpeech.webkitSpeechRecognition;
+        if (!SpeechRecognitionClass) return;
+
+        const recognition = new SpeechRecognitionClass();
 
         recognition.continuous = true;
         recognition.interimResults = true;
         recognition.lang = 'en-US';
 
-        recognition.onresult = (event: any) => {
+        recognition.onresult = (event) => {
             const current = event.resultIndex;
             const transcript = event.results[current][0].transcript.toLowerCase();
             setTranscript(transcript);
@@ -377,7 +385,7 @@ export const useVoiceControl = (commands: Record<string, () => void>) => {
             }
         };
 
-        recognition.onerror = (event: any) => {
+        recognition.onerror = (event) => {
             console.error('Speech recognition error:', event.error);
             setIsListening(false);
         };

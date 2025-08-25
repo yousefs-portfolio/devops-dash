@@ -1,11 +1,6 @@
 import {db} from '../database/connection';
 import {Project, ProjectEntity} from '../entities/Project';
-import {
-    IProjectRepository,
-    CreateProjectDTO,
-    UpdateProjectDTO,
-    ProjectFilters,
-} from './interfaces/IProjectRepository';
+import {CreateProjectDTO, IProjectRepository, ProjectFilters, UpdateProjectDTO,} from './interfaces/IProjectRepository';
 
 export class ProjectRepository implements IProjectRepository {
     private table = 'projects';
@@ -57,7 +52,7 @@ export class ProjectRepository implements IProjectRepository {
     }
 
     async update(data: UpdateProjectDTO): Promise<Project | null> {
-        const updateData: any = {};
+        const updateData: Record<string, unknown> = {};
 
         if (data.name !== undefined) updateData.name = data.name;
         if (data.description !== undefined) updateData.description = data.description;
@@ -111,7 +106,7 @@ export class ProjectRepository implements IProjectRepository {
         return parseInt(count as string, 10);
     }
 
-    private mapToEntity(row: any): Project {
+    private mapToEntity(row: Record<string, unknown>): Project {
         const settings = typeof row.settings === 'string' ? JSON.parse(row.settings) : row.settings;
         const webhookConfig = typeof row.webhook_config === 'string' ? JSON.parse(row.webhook_config) : row.webhook_config;
 

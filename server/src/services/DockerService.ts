@@ -26,7 +26,7 @@ export interface ContainerInfo {
     status: string;
     state: string;
     created: Date;
-    ports: any[];
+    ports: Array<{ PrivatePort: number; PublicPort?: number; Type: string }>;
     labels: Record<string, string>;
 }
 
@@ -81,7 +81,7 @@ export class DockerService {
             let networkRxMB = 0;
             let networkTxMB = 0;
             if (stats.networks) {
-                Object.values(stats.networks).forEach((network: any) => {
+                Object.values(stats.networks).forEach((network: { rx_bytes: number; tx_bytes: number }) => {
                     networkRxMB += network.rx_bytes / (1024 * 1024);
                     networkTxMB += network.tx_bytes / (1024 * 1024);
                 });
@@ -99,8 +99,14 @@ export class DockerService {
                 memoryPercent: isNaN(memoryPercent) ? 0 : memoryPercent,
                 networkRxMB,
                 networkTxMB,
-                blockRead: stats.blkio_stats?.io_service_bytes_recursive?.find((item: any) => item.op === 'Read')?.value || 0,
-                blockWrite: stats.blkio_stats?.io_service_bytes_recursive?.find((item: any) => item.op === 'Write')?.value || 0,
+                blockRead: stats.blkio_stats?.io_service_bytes_recursive?.find((item: {
+                    op: string;
+                    value: number
+                }) => item.op === 'Read')?.value || 0,
+                blockWrite: stats.blkio_stats?.io_service_bytes_recursive?.find((item: {
+                    op: string;
+                    value: number
+                }) => item.op === 'Write')?.value || 0,
                 pids: stats.pids_stats?.current || 0,
             };
         } catch (error) {
@@ -164,7 +170,7 @@ export class DockerService {
             const stream = await this.docker.pull(imageName);
 
             return new Promise((resolve, reject) => {
-                this.docker.modem.followProgress(stream, (err: any, res: any) => {
+                this.docker.modem.followProgress(stream, (err: Error | null) => {
                     if (err) {
                         reject(err);
                     } else {
@@ -200,7 +206,17 @@ export class DockerService {
         }
     }
 
-    async getSystemInfo(): Promise<any> {
+    async getSystemInfo(): Promise<{
+        containers: number;
+        containersRunning: number;
+        containersPaused: number;
+        containersStopped: number;
+        images: number;
+        driverStatus: Array<string[]>;
+        systemStatus: Array<string[]>;
+        dockerVersion: string;
+        serverVersion: string;
+    }> {
         try {
             const info = await this.docker.info();
 

@@ -1,13 +1,17 @@
 import cron from 'node-cron';
 import {AlertRepository} from '../repositories/AlertRepository';
 import {MetricRepository} from '../repositories/MetricRepository';
+import {ProjectRepository} from '../repositories/ProjectRepository';
 import {Server} from 'socket.io';
-import {Alert, AlertStatus} from '../entities/Alert';
+import {Alert} from '../entities/Alert';
 import {MetricType} from '../entities/Metric';
+import {NotificationService} from './NotificationService';
 
 export class AlertEvaluatorService {
     private alertRepo: AlertRepository;
     private metricRepo: MetricRepository;
+    private projectRepo: ProjectRepository;
+    private notificationService: NotificationService;
     private io: Server | null = null;
     private evaluationTask: cron.ScheduledTask | null = null;
     private alertStates: Map<string, { triggered: boolean; since: Date }> = new Map();
@@ -15,6 +19,8 @@ export class AlertEvaluatorService {
     constructor(io?: Server) {
         this.alertRepo = new AlertRepository();
         this.metricRepo = new MetricRepository();
+        this.projectRepo = new ProjectRepository();
+        this.notificationService = new NotificationService();
         this.io = io || null;
     }
 
@@ -181,36 +187,77 @@ export class AlertEvaluatorService {
     }
 
     private async sendNotifications(alert: Alert, currentValue: number): Promise<void> {
-        // Iterate through notification channels
-        for (const channel of alert.notification_channels) {
-            switch (channel) {
-                case 'email':
-                    await this.sendEmailNotification(alert, currentValue);
-                    break;
-                case 'slack':
-                    await this.sendSlackNotification(alert, currentValue);
-                    break;
-                case 'webhook':
-                    await this.sendWebhookNotification(alert, currentValue);
-                    break;
-                default:
-                    console.warn(`Unknown notification channel: ${channel}`);
+        try {
+            // Get project name for context
+            const project = await this.projectRepo.findById(alert.project_id);
+            const projectName = project?.name;
+
+            const context = {
+                alert,
+                currentValue,
+                threshold: alert.condition.threshold,
+                timestamp: new Date(),
+                projectName,
+            };
+
+            // Process each notification channel
+            const promises: Promise<void>[] = [];
+
+            for (const channel of alert.notification_channels) {
+                switch (channel) {
+                    case 'email': {
+                        // Get email recipients from notification config
+                        const emailRecipients = alert.notification_config?.email_recipients ||
+                            process.env.DEFAULT_EMAIL_RECIPIENTS?.split(',') || [];
+
+                        if (emailRecipients.length > 0) {
+                            promises.push(
+                                this.notificationService.sendEmailNotification(context, emailRecipients)
+                                    .catch(err => console.error(`Email notification failed for alert ${alert.id}:`, err))
+                            );
+                        } else {
+                            console.warn(`No email recipients configured for alert: ${alert.name}`);
+                        }
+                        break;
+                    }
+
+                    case 'slack': {
+                        promises.push(
+                            this.notificationService.sendSlackNotification(context)
+                                .catch(err => console.error(`Slack notification failed for alert ${alert.id}:`, err))
+                        );
+                        break;
+                    }
+
+                    case 'webhook': {
+                        // Get webhook URL from notification config
+                        const webhookUrl = alert.notification_config?.webhook_url ||
+                            process.env.DEFAULT_WEBHOOK_URL;
+
+                        if (webhookUrl) {
+                            promises.push(
+                                this.notificationService.sendWebhookNotification(context, webhookUrl)
+                                    .catch(err => console.error(`Webhook notification failed for alert ${alert.id}:`, err))
+                            );
+                        } else {
+                            console.warn(`No webhook URL configured for alert: ${alert.name}`);
+                        }
+                        break;
+                    }
+
+                    default: {
+                        console.warn(`Unknown notification channel: ${channel}`);
+                        break;
+                    }
+                }
             }
+
+            // Send all notifications in parallel
+            await Promise.all(promises);
+
+            console.log(`Notifications sent for alert: ${alert.name} (${promises.length} channels)`);
+        } catch (error) {
+            console.error(`Failed to send notifications for alert ${alert.id}:`, error);
         }
-    }
-
-    private async sendEmailNotification(alert: Alert, currentValue: number): Promise<void> {
-        // TODO: Implement email notification
-        console.log(`Email notification would be sent for alert: ${alert.name}`);
-    }
-
-    private async sendSlackNotification(alert: Alert, currentValue: number): Promise<void> {
-        // TODO: Implement Slack notification
-        console.log(`Slack notification would be sent for alert: ${alert.name}`);
-    }
-
-    private async sendWebhookNotification(alert: Alert, currentValue: number): Promise<void> {
-        // TODO: Implement webhook notification
-        console.log(`Webhook notification would be sent for alert: ${alert.name}`);
     }
 }

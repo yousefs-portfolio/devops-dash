@@ -1,5 +1,5 @@
 import {Router} from 'express';
-import {body, param, query} from 'express-validator';
+import {body, query} from 'express-validator';
 import {MetricController} from '../controllers/MetricController';
 import {requestValidator} from '../middleware/requestValidator';
 

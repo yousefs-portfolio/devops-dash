@@ -6,8 +6,8 @@ export interface CreateProjectDTO {
     githubRepo?: string;
     dockerImage?: string;
     status?: 'active' | 'inactive' | 'archived';
-    settings?: Record<string, any>;
-    webhookConfig?: Record<string, any>;
+    settings?: Record<string, unknown>;
+    webhookConfig?: Record<string, unknown>;
     deploymentUrl?: string;
     environment?: string;
     createdBy?: string;

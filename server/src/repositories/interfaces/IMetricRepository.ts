@@ -5,7 +5,7 @@ export interface CreateMetricDTO {
     type: MetricType;
     value: number;
     unit?: string;
-    metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
     tags?: string[];
     timestamp?: Date;
 }

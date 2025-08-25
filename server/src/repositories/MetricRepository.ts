@@ -1,11 +1,6 @@
 import {db} from '../database/connection';
 import {Metric, MetricEntity, MetricType} from '../entities/Metric';
-import {
-    IMetricRepository,
-    CreateMetricDTO,
-    MetricFilters,
-    MetricAggregation,
-} from './interfaces/IMetricRepository';
+import {CreateMetricDTO, IMetricRepository, MetricAggregation, MetricFilters,} from './interfaces/IMetricRepository';
 
 export class MetricRepository implements IMetricRepository {
     private table = 'metrics';
@@ -164,7 +159,7 @@ export class MetricRepository implements IMetricRepository {
         );
     }
 
-    private mapToEntity(row: any): Metric {
+    private mapToEntity(row: Record<string, unknown>): Metric {
         const metadata = typeof row.metadata === 'string' ? JSON.parse(row.metadata) : row.metadata;
         const tags = typeof row.tags === 'string' ? JSON.parse(row.tags) : row.tags;
 

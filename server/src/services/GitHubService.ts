@@ -110,7 +110,13 @@ export class GitHubService {
         }
     }
 
-    async getContributors(owner: string, repo: string, limit = 10): Promise<any[]> {
+    async getContributors(owner: string, repo: string, limit = 10): Promise<Array<{
+        login: string;
+        avatarUrl: string;
+        contributions: number;
+        htmlUrl: string;
+        type: string;
+    }>> {
         try {
             const {data} = await this.octokit.repos.listContributors({
                 owner,
@@ -130,7 +136,15 @@ export class GitHubService {
         }
     }
 
-    async getLatestRelease(owner: string, repo: string): Promise<any> {
+    async getLatestRelease(owner: string, repo: string): Promise<{
+        tagName: string;
+        name: string;
+        publishedAt: string;
+        htmlUrl: string;
+        body: string;
+        draft: boolean;
+        prerelease: boolean;
+    }> {
         try {
             const {data} = await this.octokit.repos.getLatestRelease({
                 owner,
@@ -144,7 +158,7 @@ export class GitHubService {
                 author: data.author?.login,
                 downloadUrl: data.html_url,
             };
-        } catch (error: any) {
+        } catch (error) {
             if (error.status === 404) {
                 return null; // No releases found
             }

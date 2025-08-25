@@ -1,7 +1,6 @@
 import {ProjectRepository} from '../ProjectRepository';
 import {db} from '../../database/connection';
 import {CreateProjectDTO, UpdateProjectDTO} from '../interfaces/IProjectRepository';
-import {Project} from '../../entities/Project';
 
 describe('ProjectRepository', () => {
     let repository: ProjectRepository;
